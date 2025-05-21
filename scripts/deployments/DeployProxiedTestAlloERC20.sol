@@ -9,21 +9,22 @@ import "forge-std/console.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin-contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin-contracts/proxy/transparent/ProxyAdmin.sol";
 import {AlloOFTUpgradeable} from "@allora-oft-contracts/AlloOFTUpgradeable.sol";
+import { TestAlloERC20} from "../../test/solidity-ibc/mocks/TestAlloERC20.sol";
 
 contract MockLzEndpoint {
     function setDelegate(address _delegate) public {}
 }
 
-abstract contract DeployProxiedAlloraOFT {
-    function deployProxiedAlloraOFT(address _ics20Proxy) public returns (address) {
-        address proxyOwner = address(msg.sender);
+abstract contract DeployProxiedTestAlloERC20 {
+    function deployProxiedTestAlloERC20(address _ics20Proxy) public returns (address) {
+      address proxyOwner = address(msg.sender);
         address lzEndpoint = address(new MockLzEndpoint());
 
         ProxyAdmin proxyAdmin = new ProxyAdmin(proxyOwner);
 
         // Deploy implementation
-        AlloOFTUpgradeable implementation = new AlloOFTUpgradeable(lzEndpoint);
-        console.log("Deployed AlloOFTUpgradeable implementation at address: ", address(implementation));
+        TestAlloERC20 implementation = new TestAlloERC20(lzEndpoint);
+        console.log("Deployed TestAlloOFT implementation at address: ", address(implementation));
 
         // Encode the initialization data
         bytes memory initData = abi.encodeWithSelector(
@@ -41,8 +42,8 @@ abstract contract DeployProxiedAlloraOFT {
             initData
         );
 
-        console.log("Deployed AlloraOFT at address: ", address(proxy));
-        AlloOFTUpgradeable alloOFT = AlloOFTUpgradeable(address(proxy));
+        console.log("Deployed TestAlloERC20 at address: ", address(proxy));
+        TestAlloERC20 alloOFT = TestAlloERC20(address(proxy));
 
         // Verify Initialization
         console.log("Token name: ", alloOFT.name());

@@ -24,11 +24,11 @@ import { DeployProxiedICS26Router } from "./deployments/DeployProxiedICS26Router
 import { SP1Verifier as SP1VerifierPlonk } from "@sp1-contracts/v4.0.0-rc.3/SP1VerifierPlonk.sol";
 import { SP1Verifier as SP1VerifierGroth16 } from "@sp1-contracts/v4.0.0-rc.3/SP1VerifierGroth16.sol";
 import { SP1MockVerifier } from "@sp1-contracts/SP1MockVerifier.sol";
-import { DeployProxiedAlloraOFT } from "./deployments/DeployProxiedAlloraOFT.sol";
-import { AlloOFTUpgradeable } from "@allora-oft-contracts/AlloOFTUpgradeable.sol";
+import { DeployProxiedTestAlloERC20 } from "./deployments/DeployProxiedTestAlloERC20.sol";
+import { TestAlloERC20 } from "../test/solidity-ibc/mocks/TestAlloERC20.sol";
 
 /// @dev See the Solidity Scripting tutorial: https://book.getfoundry.sh/tutorials/solidity-scripting
-contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router, DeployProxiedICS20Transfer, DeployProxiedAlloraOFT {
+contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router, DeployProxiedICS20Transfer, DeployProxiedTestAlloERC20 {
     using stdJson for string;
 
     string internal constant SP1_GENESIS_DIR = "/scripts/";
@@ -73,11 +73,11 @@ contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router
             address(0)
         );
 
-        address alloErc20Proxy = deployProxiedAlloraOFT(address(transferProxy));
+        address alloErc20Proxy = deployProxiedTestAlloERC20(address(transferProxy));
 
         ICS26Router ics26Router = ICS26Router(address(routerProxy));
         ICS20Transfer ics20Transfer = ICS20Transfer(address(transferProxy));
-        AlloOFTUpgradeable alloErc20 = AlloOFTUpgradeable(address(alloErc20Proxy));
+        TestAlloERC20 alloErc20 = TestAlloERC20(address(alloErc20Proxy));
 
         // Deploy Dummy ERC20
         TestERC20 erc20 = new TestERC20();
@@ -87,6 +87,9 @@ contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router
 
         // Mint some tokens
         erc20.mint(e2eFaucet, type(uint256).max);
+
+        // Mint some tokens to the alloErc20
+        alloErc20.forceMint(e2eFaucet, type(uint256).max);
 
         vm.stopBroadcast();
 

@@ -33,6 +33,7 @@ import (
 
 	"github.com/strangelove-ventures/interchaintest/v8/ibc"
 
+	"github.com/cosmos/solidity-ibc-eureka/packages/go-abigen/alloerc20"
 	"github.com/cosmos/solidity-ibc-eureka/packages/go-abigen/ibcerc20"
 	"github.com/cosmos/solidity-ibc-eureka/packages/go-abigen/ics20transfer"
 	"github.com/cosmos/solidity-ibc-eureka/packages/go-abigen/ics26router"
@@ -45,7 +46,6 @@ import (
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/relayer"
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/testvalues"
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/types"
-	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/types/erc20"
 	ethereumtypes "github.com/srdtrk/solidity-ibc-eureka/e2e/v8/types/ethereum"
 	relayertypes "github.com/srdtrk/solidity-ibc-eureka/e2e/v8/types/relayer"
 )
@@ -70,7 +70,7 @@ type IbcEurekaTestSuite struct {
 	sp1Ics07Contract *sp1ics07tendermint.Contract
 	ics26Contract    *ics26router.Contract
 	ics20Contract    *ics20transfer.Contract
-	erc20Contract    *erc20.Contract
+	erc20Contract    *alloerc20.Contract
 
 	RelayerClient relayertypes.RelayerServiceClient
 
@@ -161,7 +161,7 @@ func (s *IbcEurekaTestSuite) SetupSuite(ctx context.Context, proofType operator.
 		s.Require().NoError(err)
 		s.ics20Contract, err = ics20transfer.NewContract(ethcommon.HexToAddress(s.contractAddresses.Ics20Transfer), eth.RPCClient)
 		s.Require().NoError(err)
-		s.erc20Contract, err = erc20.NewContract(ethcommon.HexToAddress(s.contractAddresses.Erc20), eth.RPCClient)
+		s.erc20Contract, err = alloerc20.NewContract(ethcommon.HexToAddress(s.contractAddresses.AlloErc20), eth.RPCClient)
 		s.Require().NoError(err)
 	}))
 
@@ -467,7 +467,7 @@ func (s *IbcEurekaTestSuite) ICS20TransferERC20TokenfromEthereumToCosmosAndBackT
 
 	ics26Address := ethcommon.HexToAddress(s.contractAddresses.Ics26Router)
 	ics20Address := ethcommon.HexToAddress(s.contractAddresses.Ics20Transfer)
-	erc20Address := ethcommon.HexToAddress(s.contractAddresses.Erc20)
+	erc20Address := ethcommon.HexToAddress(s.contractAddresses.AlloErc20)
 
 	totalTransferAmount := new(big.Int).Mul(transferAmount, big.NewInt(int64(numOfTransfers)))
 	ethereumUserAddress := crypto.PubkeyToAddress(s.key.PublicKey)
@@ -586,7 +586,7 @@ func (s *IbcEurekaTestSuite) ICS20TransferERC20TokenfromEthereumToCosmosAndBackT
 		}))
 
 		s.Require().True(s.Run("Verify balances on Cosmos chain", func() {
-			denomOnCosmos = transfertypes.NewDenom(s.contractAddresses.Erc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
+			denomOnCosmos = transfertypes.NewDenom(s.contractAddresses.AlloErc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
 
 			// User balance on Cosmos chain
 			resp, err := e2esuite.GRPCQuery[banktypes.QueryBalanceResponse](ctx, simd, &banktypes.QueryBalanceRequest{
@@ -631,7 +631,7 @@ func (s *IbcEurekaTestSuite) ICS20TransferERC20TokenfromEthereumToCosmosAndBackT
 		if s.generateSolidityFixtures {
 			s.Require().NoError(types.GenerateAndSaveSolidityFixture(
 				fmt.Sprintf("acknowledgeMultiPacket_%d-%s.json", numOfTransfers, proofType.String()),
-				s.contractAddresses.Erc20, ackRelayTx, sendPacket,
+				s.contractAddresses.AlloErc20, ackRelayTx, sendPacket,
 			))
 		}
 
@@ -738,7 +738,7 @@ func (s *IbcEurekaTestSuite) ICS20TransferERC20TokenfromEthereumToCosmosAndBackT
 		if s.generateSolidityFixtures {
 			s.Require().NoError(types.GenerateAndSaveSolidityFixture(
 				fmt.Sprintf("receiveMultiPacket_%d-%s.json", numOfTransfers, proofType.String()),
-				s.contractAddresses.Erc20, recvRelayTx, returnPacket,
+				s.contractAddresses.AlloErc20, recvRelayTx, returnPacket,
 			))
 		}
 
@@ -820,7 +820,7 @@ func (s *IbcEurekaTestSuite) ICS20TransferERC20TokenFromEthereumToCosmosAndBackF
 
 	ics26Address := ethcommon.HexToAddress(s.contractAddresses.Ics26Router)
 	ics20Address := ethcommon.HexToAddress(s.contractAddresses.Ics20Transfer)
-	erc20Address := ethcommon.HexToAddress(s.contractAddresses.Erc20)
+	erc20Address := ethcommon.HexToAddress(s.contractAddresses.AlloErc20)
 
 	totalTransferAmount := new(big.Int).Mul(transferAmount, big.NewInt(int64(numOfTransfers)))
 	ethereumUserAddress := crypto.PubkeyToAddress(s.key.PublicKey)
@@ -897,7 +897,7 @@ func (s *IbcEurekaTestSuite) ICS20TransferERC20TokenFromEthereumToCosmosAndBackF
 	}))
 
 	s.Require().True(s.Run("Transfer tokens back from Cosmos chain with invalid receiver should fail", func() {
-		denomOnCosmos := transfertypes.NewDenom(s.contractAddresses.Erc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
+		denomOnCosmos := transfertypes.NewDenom(s.contractAddresses.AlloErc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
 		timeout := uint64(time.Now().Add(30 * time.Minute).Unix())
 		ibcCoin := sdk.NewCoin(denomOnCosmos.Path(), sdkmath.NewIntFromBigInt(transferAmount))
 
@@ -1114,7 +1114,7 @@ func (s *IbcEurekaTestSuite) ICS20TransferNativeCosmosCoinsToEthereumAndBackTest
 		}))
 
 		if s.generateSolidityFixtures {
-			s.Require().NoError(types.GenerateAndSaveSolidityFixture(fmt.Sprintf("receiveNativePacket-%s.json", pt.String()), s.contractAddresses.Erc20, recvRelayTx, packet))
+			s.Require().NoError(types.GenerateAndSaveSolidityFixture(fmt.Sprintf("receiveNativePacket-%s.json", pt.String()), s.contractAddresses.AlloErc20, recvRelayTx, packet))
 		}
 
 		// Recreate the full denom path
@@ -1397,7 +1397,7 @@ func (s *IbcEurekaTestSuite) FilteredICS20TimeoutPacketFromEthereumTest(
 	eth, simd := s.EthChain, s.CosmosChains[0]
 
 	ics26Address := ethcommon.HexToAddress(s.contractAddresses.Ics26Router)
-	erc20Address := ethcommon.HexToAddress(s.contractAddresses.Erc20)
+	erc20Address := ethcommon.HexToAddress(s.contractAddresses.AlloErc20)
 
 	transferAmount := big.NewInt(testvalues.TransferAmount)
 	totalTransferAmount := new(big.Int).Mul(transferAmount, big.NewInt(int64(numOfTransfers)))
@@ -1413,7 +1413,7 @@ func (s *IbcEurekaTestSuite) FilteredICS20TimeoutPacketFromEthereumTest(
 
 	var originalBalance *sdk.Coin
 	s.Require().True(s.Run("Retrieve original balance", func() {
-		denomOnCosmos := transfertypes.NewDenom(s.contractAddresses.Erc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
+		denomOnCosmos := transfertypes.NewDenom(s.contractAddresses.AlloErc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
 
 		resp, err := e2esuite.GRPCQuery[banktypes.QueryBalanceResponse](ctx, simd, &banktypes.QueryBalanceRequest{
 			Address: cosmosUserAddress,
@@ -1536,7 +1536,7 @@ func (s *IbcEurekaTestSuite) FilteredICS20TimeoutPacketFromEthereumTest(
 
 		if s.generateSolidityFixtures {
 			s.Require().Zero(len(timeoutFilter))
-			s.Require().NoError(types.GenerateAndSaveSolidityFixture(fmt.Sprintf("timeoutMultiPacket_%d-%s.json", numOfTransfers, pt.String()), s.contractAddresses.Erc20, timeoutRelayTx, sendPacket))
+			s.Require().NoError(types.GenerateAndSaveSolidityFixture(fmt.Sprintf("timeoutMultiPacket_%d-%s.json", numOfTransfers, pt.String()), s.contractAddresses.AlloErc20, timeoutRelayTx, sendPacket))
 		}
 
 		s.Require().True(s.Run("Verify balances on Ethereum", func() {
@@ -1556,7 +1556,7 @@ func (s *IbcEurekaTestSuite) FilteredICS20TimeoutPacketFromEthereumTest(
 		}))
 
 		s.Require().True(s.Run("Verify no balance on Cosmos chain", func() {
-			denomOnCosmos := transfertypes.NewDenom(s.contractAddresses.Erc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
+			denomOnCosmos := transfertypes.NewDenom(s.contractAddresses.AlloErc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
 
 			resp, err := e2esuite.GRPCQuery[banktypes.QueryBalanceResponse](ctx, simd, &banktypes.QueryBalanceRequest{
 				Address: cosmosUserAddress,
@@ -1605,7 +1605,7 @@ func (s *IbcEurekaTestSuite) ICS20ErrorAckToEthereumTest(
 
 	eth, simd := s.EthChain, s.CosmosChains[0]
 	ics26Address := ethcommon.HexToAddress(s.contractAddresses.Ics26Router)
-	erc20Address := ethcommon.HexToAddress(s.contractAddresses.Erc20)
+	erc20Address := ethcommon.HexToAddress(s.contractAddresses.AlloErc20)
 
 	transferAmount := big.NewInt(testvalues.TransferAmount)
 	ethereumUserAddress := crypto.PubkeyToAddress(s.key.PublicKey)
@@ -1698,7 +1698,7 @@ func (s *IbcEurekaTestSuite) ICS20ErrorAckToEthereumTest(
 		}))
 
 		s.Require().True(s.Run("Verify no balance on Cosmos chain", func() {
-			denomOnCosmos = transfertypes.NewDenom(s.contractAddresses.Erc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
+			denomOnCosmos = transfertypes.NewDenom(s.contractAddresses.AlloErc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
 
 			_, err := e2esuite.GRPCQuery[banktypes.QueryBalanceResponse](ctx, simd, &banktypes.QueryBalanceRequest{
 				Address: ibctesting.InvalidID,
@@ -2151,7 +2151,7 @@ func (s *IbcEurekaTestSuite) TimeoutPacketCosmosRemintsVouchersTest(ctx context.
 
 	ics26Address := ethcommon.HexToAddress(s.contractAddresses.Ics26Router)
 	ics20Address := ethcommon.HexToAddress(s.contractAddresses.Ics20Transfer)
-	erc20Address := ethcommon.HexToAddress(s.contractAddresses.Erc20)
+	erc20Address := ethcommon.HexToAddress(s.contractAddresses.AlloErc20)
 
 	transferAmount := big.NewInt(testvalues.TransferAmount)
 	ethereumUserAddress := crypto.PubkeyToAddress(s.key.PublicKey)
@@ -2256,7 +2256,7 @@ func (s *IbcEurekaTestSuite) TimeoutPacketCosmosRemintsVouchersTest(ctx context.
 			ackTxHash, err = hex.DecodeString(resp.TxHash)
 			s.Require().NoError(err)
 
-			denomOnCosmos = transfertypes.NewDenom(s.contractAddresses.Erc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
+			denomOnCosmos = transfertypes.NewDenom(s.contractAddresses.AlloErc20, transfertypes.NewHop(transfertypes.PortID, testvalues.FirstWasmClientID))
 
 			// Verify initial voucher balance
 			balanceResp, err := e2esuite.GRPCQuery[banktypes.QueryBalanceResponse](ctx, simd, &banktypes.QueryBalanceRequest{
