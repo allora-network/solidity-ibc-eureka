@@ -150,9 +150,11 @@ func (s *IbcEurekaTestSuite) SetupSuite(ctx context.Context, proofType operator.
 	s.wasmFixtureGenerator = types.NewWasmFixtureGenerator(&s.Suite, shouldGenerateWasmFixtures)
 
 	s.Require().True(s.Run("Deploy IBC contracts", func() {
+		// Run the deploy script for deploying the solidity contracts
 		stdout, err := eth.ForgeScript(s.deployer, testvalues.E2EDeployScriptPath)
 		s.Require().NoError(err)
 
+		// Get the deployed contract addresses from the deploy script output
 		s.contractAddresses, err = ethereum.GetEthContractsFromDeployOutput(string(stdout))
 		s.Require().NoError(err)
 		s.ics26Contract, err = ics26router.NewContract(ethcommon.HexToAddress(s.contractAddresses.Ics26Router), eth.RPCClient)

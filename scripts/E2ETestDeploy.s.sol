@@ -24,9 +24,11 @@ import { DeployProxiedICS26Router } from "./deployments/DeployProxiedICS26Router
 import { SP1Verifier as SP1VerifierPlonk } from "@sp1-contracts/v4.0.0-rc.3/SP1VerifierPlonk.sol";
 import { SP1Verifier as SP1VerifierGroth16 } from "@sp1-contracts/v4.0.0-rc.3/SP1VerifierGroth16.sol";
 import { SP1MockVerifier } from "@sp1-contracts/SP1MockVerifier.sol";
+import { DeployProxiedAlloraOFT } from "./deployments/DeployProxiedAlloraOFT.sol";
+import { AlloOFTUpgradeable } from "@allora-oft-contracts/AlloOFTUpgradeable.sol";
 
 /// @dev See the Solidity Scripting tutorial: https://book.getfoundry.sh/tutorials/solidity-scripting
-contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router, DeployProxiedICS20Transfer {
+contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router, DeployProxiedICS20Transfer, DeployProxiedAlloraOFT {
     using stdJson for string;
 
     string internal constant SP1_GENESIS_DIR = "/scripts/";
@@ -71,9 +73,15 @@ contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router
             address(0)
         );
 
+        address alloErc20Proxy = deployProxiedAlloraOFT(address(transferProxy));
+
         ICS26Router ics26Router = ICS26Router(address(routerProxy));
         ICS20Transfer ics20Transfer = ICS20Transfer(address(transferProxy));
+        AlloOFTUpgradeable alloErc20 = AlloOFTUpgradeable(address(alloErc20Proxy));
+
+        // Deploy Dummy ERC20
         TestERC20 erc20 = new TestERC20();
+
         // Wire Transfer app
         ics26Router.addIBCApp(ICS20Lib.DEFAULT_PORT_ID, address(ics20Transfer));
 
@@ -89,6 +97,7 @@ contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router
         json.serialize("ics26Router", Strings.toHexString(address(ics26Router)));
         json.serialize("ics20Transfer", Strings.toHexString(address(ics20Transfer)));
         json.serialize("ibcERC20Logic", Strings.toHexString(address(ibcERC20Logic)));
+        json.serialize("alloErc20", Strings.toHexString(address(alloErc20)));
         // TODO: resolve finalJson vs json
         string memory finalJson = json.serialize("erc20", Strings.toHexString(address(erc20)));
 
