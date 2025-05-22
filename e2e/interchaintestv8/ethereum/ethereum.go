@@ -100,11 +100,18 @@ func (e *Ethereum) BroadcastTx(ctx context.Context, userKey *ecdsa.PrivateKey, g
 	return receipt, nil
 }
 
-func (e Ethereum) ForgeScript(deployer *ecdsa.PrivateKey, solidityContract string, args ...string) ([]byte, error) {
-	args = append(args, "script", "--rpc-url", e.RPC, "--private-key",
-		hex.EncodeToString(crypto.FromECDSA(deployer)), "--broadcast",
-		"--non-interactive", "-vvvv", solidityContract,
-	)
+func (e Ethereum) ForgeScript(deployer *ecdsa.PrivateKey, solidityContract string, skipAlloInitialMint bool) ([]byte, error) {
+	args := []string{
+		"script",
+		"--rpc-url", e.RPC,
+		"--private-key",
+		hex.EncodeToString(crypto.FromECDSA(deployer)),
+		"--broadcast",
+		"--non-interactive",
+		"-vvvv",
+		solidityContract,
+	}
+
 	cmd := exec.Command(
 		"forge", args...,
 	)
@@ -112,6 +119,7 @@ func (e Ethereum) ForgeScript(deployer *ecdsa.PrivateKey, solidityContract strin
 	faucetAddress := crypto.PubkeyToAddress(e.Faucet.PublicKey)
 	extraEnv := []string{
 		fmt.Sprintf("%s=%s", testvalues.EnvKeyE2EFacuetAddress, faucetAddress.Hex()),
+		fmt.Sprintf("%s=%t", "SKIP_ALLO_INITIAL_MINT", skipAlloInitialMint),
 	}
 
 	cmd.Env = os.Environ()

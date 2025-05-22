@@ -10,14 +10,11 @@ import {TransparentUpgradeableProxy} from "@openzeppelin-contracts/proxy/transpa
 import {ProxyAdmin} from "@openzeppelin-contracts/proxy/transparent/ProxyAdmin.sol";
 import {AlloOFTUpgradeable} from "@allora-oft-contracts/AlloOFTUpgradeable.sol";
 import { TestAlloERC20} from "../../test/solidity-ibc/mocks/TestAlloERC20.sol";
-
-contract MockLzEndpoint {
-    function setDelegate(address _delegate) public {}
-}
+import { MockLzEndpoint } from "../../test/solidity-ibc/mocks/MockLzEndpoint.sol";
 
 abstract contract DeployProxiedTestAlloERC20 {
     function deployProxiedTestAlloERC20(address _ics20Proxy) public returns (address) {
-      address proxyOwner = address(msg.sender);
+        address proxyOwner = address(msg.sender);
         address lzEndpoint = address(new MockLzEndpoint());
 
         ProxyAdmin proxyAdmin = new ProxyAdmin(proxyOwner);

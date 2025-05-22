@@ -211,6 +211,12 @@ test-e2e testname: clean-foundry install-relayer
 	@echo "Running {{testname}} test..."
 	cd e2e/interchaintestv8 && go test -v -run '^{{testname}}$' -timeout 120m
 
+# Run any e2e test in the AlloTransfersTestSuite. For example, `just test-e2e-allo-transfers TestDeploy_Groth16`
+[group('test')]
+test-e2e-allo testname:
+	@echo "Running {{testname}} test..."
+	just test-e2e TestWithAlloTransfersTestSuite/{{testname}}
+
 # Run any e2e test in the IbcEurekaTestSuite. For example, `just test-e2e-eureka TestDeploy_Groth16`
 [group('test')]
 test-e2e-eureka testname:

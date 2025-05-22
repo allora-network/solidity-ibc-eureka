@@ -151,7 +151,7 @@ func (s *IbcEurekaTestSuite) SetupSuite(ctx context.Context, proofType operator.
 
 	s.Require().True(s.Run("Deploy IBC contracts", func() {
 		// Run the deploy script for deploying the solidity contracts
-		stdout, err := eth.ForgeScript(s.deployer, testvalues.E2EDeployScriptPath)
+		stdout, err := eth.ForgeScript(s.deployer, testvalues.E2EDeployScriptPath, false)
 		s.Require().NoError(err)
 
 		// Get the deployed contract addresses from the deploy script output

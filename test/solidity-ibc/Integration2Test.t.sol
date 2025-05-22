@@ -19,13 +19,17 @@ import { Strings } from "@openzeppelin-contracts/utils/Strings.sol";
 import { ICS24Host } from "../../contracts/utils/ICS24Host.sol";
 import { ICS20Lib } from "../../contracts/utils/ICS20Lib.sol";
 import { TestCustomERC20 } from "./mocks/TestERC20.sol";
+import { DeployProxiedTestAlloERC20 } from "../../scripts/deployments/DeployProxiedTestAlloERC20.sol";
+import { AlloOFTUpgradeable } from "@allora-oft-contracts/AlloOFTUpgradeable.sol";
 
-contract Integration2Test is Test {
+contract Integration2Test is Test, DeployProxiedTestAlloERC20 {
     IbcImpl public ibcImplA;
     IbcImpl public ibcImplB;
 
     TestHelper public th = new TestHelper();
     IntegrationEnv public integrationEnv;
+
+    event Transfer(address indexed from, address indexed to, uint256 value);
 
     function setUp() public {
         // Set up the environment
@@ -257,7 +261,10 @@ contract Integration2Test is Test {
             Strings.toHexString(address(integrationEnv.erc20()))
         );
 
-        address customERC20 = address(new TestCustomERC20(address(ibcImplB.ics20Transfer())));
+        // Deploy the custom erc20
+        address owner = makeAddr("customERC20Owner");
+        vm.prank(owner);
+        address customERC20 = deployProxiedTestAlloERC20(address(ibcImplB.ics20Transfer()));
         ibcImplB.ics20Transfer().setCustomERC20(expDenomPath, customERC20);
 
         address user = integrationEnv.createAndFundUser(amount);
@@ -270,7 +277,6 @@ contract Integration2Test is Test {
         assertFalse(ibcImplB.relayerHelper().isPacketReceived(sentPacket));
         assertFalse(ibcImplB.relayerHelper().isPacketReceiveSuccessful(sentPacket));
 
-        // Receive the packet on B
         bytes[] memory acks = ibcImplB.recvPacket(sentPacket);
         assertEq(acks.length, 1, "ack length mismatch");
         assertEq(acks, th.SINGLE_SUCCESS_ACK(), "ack mismatch");
