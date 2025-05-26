@@ -36,9 +36,9 @@ import (
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/cosmos"
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/e2esuite"
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/ethereum"
-	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/operator"
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/relayer"
 	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/testvalues"
+	"github.com/srdtrk/solidity-ibc-eureka/e2e/v8/types"
 	relayertypes "github.com/srdtrk/solidity-ibc-eureka/e2e/v8/types/relayer"
 )
 
@@ -73,7 +73,7 @@ func TestWithAlloTransfersTestSuite(t *testing.T) {
 
 // SetupSuite calls the underlying AlloTransfersTestSuite's SetupSuite method
 // and deploys the IbcEureka contract
-func (s *AlloTransfersTestSuite) SetupSuite(ctx context.Context, proofType operator.SupportedProofType, skipAlloInitialMint bool) {
+func (s *AlloTransfersTestSuite) SetupSuite(ctx context.Context, proofType types.SupportedProofType, skipAlloInitialMint bool) {
 	s.TestSuite.SetupSuite(ctx)
 
 	eth, simd := s.EthChain, s.CosmosChains[0]
@@ -207,9 +207,9 @@ func (s *AlloTransfersTestSuite) SetupSuite(ctx context.Context, proofType opera
 			verfierAddress = s.contractAddresses.VerifierMock
 		} else {
 			switch proofType {
-			case operator.ProofTypeGroth16:
+			case types.ProofTypeGroth16:
 				verfierAddress = s.contractAddresses.VerifierGroth16
-			case operator.ProofTypePlonk:
+			case types.ProofTypePlonk:
 				verfierAddress = s.contractAddresses.VerifierPlonk
 			default:
 				s.Require().Fail("invalid proof type: %s", proofType)
@@ -316,7 +316,7 @@ func (s *AlloTransfersTestSuite) SetupSuite(ctx context.Context, proofType opera
 }
 
 // DeployTest tests the deployment of the AlloTransfers contracts
-func (s *AlloTransfersTestSuite) DeployTest(ctx context.Context, proofType operator.SupportedProofType, skipAlloInitialMint bool) {
+func (s *AlloTransfersTestSuite) DeployTest(ctx context.Context, proofType types.SupportedProofType, skipAlloInitialMint bool) {
 	s.SetupSuite(ctx, proofType, skipAlloInitialMint)
 
 	eth, simd := s.EthChain, s.CosmosChains[0]
@@ -434,11 +434,11 @@ func (s *AlloTransfersTestSuite) DeployTest(ctx context.Context, proofType opera
 
 func (s *AlloTransfersTestSuite) TestICS20TransferAlloTokenfromCosmosToEthereumAndBack() {
 	ctx := context.Background()
-	s.ICS20TransferAlloTokenfromCosmosToEthereumAndBackTest(ctx, operator.ProofTypeGroth16)
+	s.ICS20TransferAlloTokenfromCosmosToEthereumAndBackTest(ctx, types.ProofTypeGroth16)
 }
 
 
-func (s *AlloTransfersTestSuite) ICS20TransferAlloTokenfromCosmosToEthereumAndBackTest(ctx context.Context, proofType operator.SupportedProofType) {
+func (s *AlloTransfersTestSuite) ICS20TransferAlloTokenfromCosmosToEthereumAndBackTest(ctx context.Context, proofType types.SupportedProofType) {
 	s.SetupSuite(ctx, proofType, true)
 
   _, simd := s.EthChain, s.CosmosChains[0]
