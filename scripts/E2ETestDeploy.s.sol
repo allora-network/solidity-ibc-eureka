@@ -84,16 +84,14 @@ contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router
         ICS20Transfer ics20Transfer = ICS20Transfer(address(transferProxy));
         TestAlloERC20 alloErc20 = TestAlloERC20(address(alloErc20Proxy));
 
-        // // Set ALLO ERC20 as a custom ERC20 on ICS20Transfer
-        // string memory denomPath = string.concat(
-        //     ICS20Lib.DEFAULT_PORT_ID,
-        //     "/",
-        //     th.FIRST_CLIENT_ID(),
-        //     "/",
-        //     Strings.toHexString(address(alloErc20))
-        // );
-        // // console.log("denomPath", ics20Transfer.ibcERC20Denom(address(alloErc20)));
-        // ics20Transfer.setCustomERC20(denomPath, address(alloErc20));
+        // Set ALLO ERC20 as a custom ERC20 on ICS20Transfer
+        string memory denomPath = string.concat(
+            ICS20Lib.DEFAULT_PORT_ID,
+            "/",
+            "client-0",
+            "/uallo"
+        );
+        ics20Transfer.setCustomERC20(denomPath, address(alloErc20));
 
         // Deploy Dummy ERC20
         TestERC20 erc20 = new TestERC20();

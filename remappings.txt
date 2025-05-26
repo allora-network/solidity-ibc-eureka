@@ -5,3 +5,4 @@ forge-std/=node_modules/forge-std/src/
 @uniswap/permit2/=node_modules/@uniswap/permit2/
 @allora-oft-contracts/=lib/oft-contracts/contracts
 @openzeppelin-foundry-upgrades/=lib/openzeppelin-foundry-upgrades/src/
+@layerzerolabs/=node_modules/@layerzerolabs/
