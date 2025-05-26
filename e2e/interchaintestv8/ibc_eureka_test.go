@@ -147,7 +147,7 @@ func (s *IbcEurekaTestSuite) SetupSuite(ctx context.Context, proofType types.Sup
 	s.solidityFixtureGenerator = types.NewSolidityFixtureGenerator()
 
 	s.Require().True(s.Run("Deploy IBC contracts", func() {
-		stdout, err := eth.ForgeScript(s.deployer, testvalues.E2EDeployScriptPath)
+		stdout, err := eth.ForgeScript(s.deployer, testvalues.E2EDeployScriptPath, false)
 		s.Require().NoError(err)
 
 		s.contractAddresses, err = ethereum.GetEthContractsFromDeployOutput(string(stdout))

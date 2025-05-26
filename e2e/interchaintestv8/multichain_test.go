@@ -138,7 +138,7 @@ func (s *MultichainTestSuite) SetupSuite(ctx context.Context, proofType types.Su
 	}))
 
 	s.Require().True(s.Run("Deploy ethereum contracts with SimdA client", func() {
-		stdout, err := eth.ForgeScript(s.deployer, testvalues.E2EDeployScriptPath)
+		stdout, err := eth.ForgeScript(s.deployer, testvalues.E2EDeployScriptPath, false)
 		s.Require().NoError(err)
 
 		s.contractAddresses, err = ethereum.GetEthContractsFromDeployOutput(string(stdout))

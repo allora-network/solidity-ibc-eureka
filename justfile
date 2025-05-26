@@ -47,6 +47,10 @@ install-operator:
 install-relayer:
 	cargo install --bin relayer --path programs/relayer --locked
 
+[group('install')]
+install-allo-oft-deps:
+	cd lib/oft-contracts && pnpm install
+
 # Run all linters
 [group('lint')]
 lint:
@@ -92,12 +96,14 @@ generate-abi: build-contracts
 	jq '.abi' out/ERC20.sol/ERC20.json > abi/ERC20.json
 	jq '.abi' out/IBCERC20.sol/IBCERC20.json > abi/IBCERC20.json
 	jq '.abi' out/RelayerHelper.sol/RelayerHelper.json > abi/RelayerHelper.json
+	jq '.abi' out/TestAlloERC20.sol/TestAlloERC20.json > abi/TestAlloERC20.json
 	abigen --abi abi/ERC20.json --pkg erc20 --type Contract --out e2e/interchaintestv8/types/erc20/contract.go
 	abigen --abi abi/SP1ICS07Tendermint.json --pkg sp1ics07tendermint --type Contract --out packages/go-abigen/sp1ics07tendermint/contract.go
 	abigen --abi abi/ICS20Transfer.json --pkg ics20transfer --type Contract --out packages/go-abigen/ics20transfer/contract.go
 	abigen --abi abi/ICS26Router.json --pkg ics26router --type Contract --out packages/go-abigen/ics26router/contract.go
 	abigen --abi abi/IBCERC20.json --pkg ibcerc20 --type Contract --out packages/go-abigen/ibcerc20/contract.go
 	abigen --abi abi/RelayerHelper.json --pkg relayerhelper --type Contract --out packages/go-abigen/relayerhelper/contract.go
+	abigen --abi abi/TestAlloERC20.json --pkg alloerc20 --type Contract --out packages/go-abigen/alloerc20/contract.go
 
 # Generate the ABI files with bytecode for the required contracts (only SP1ICS07Tendermint)
 [group('generate')]
@@ -209,6 +215,12 @@ test-abigen:
 test-e2e testname: clean-foundry install-relayer
 	@echo "Running {{testname}} test..."
 	cd e2e/interchaintestv8 && go test -v -run '^{{testname}}$' -timeout 120m
+
+# Run any e2e test in the AlloTransfersTestSuite. For example, `just test-e2e-allo-transfers TestDeploy_Groth16`
+[group('test')]
+test-e2e-allo testname:
+	@echo "Running {{testname}} test..."
+	just test-e2e TestWithAlloTransfersTestSuite/{{testname}}
 
 # Run any e2e test in the IbcEurekaTestSuite. For example, `just test-e2e-eureka TestDeploy_Groth16`
 [group('test')]

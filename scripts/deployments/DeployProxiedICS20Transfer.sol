@@ -18,6 +18,7 @@ abstract contract DeployProxiedICS20Transfer {
         address[] memory pausers,
         address[] memory unpausers,
         address tokenOperator,
+        address erc20Customizer,
         address permit2
     ) public returns (ERC1967Proxy) {
         ERC1967Proxy transferProxy = new ERC1967Proxy(
@@ -49,10 +50,16 @@ abstract contract DeployProxiedICS20Transfer {
             ics20Transfer.grantUnpauserRole(unpauser);
         }
 
+        if (erc20Customizer != address(0)) {
+            console.log("Granting erc20Customizer role to: ", erc20Customizer);
+            ics20Transfer.grantERC20CustomizerRole(erc20Customizer);
+        }
+
         if (tokenOperator != address(0)) {
             console.log("Granting tokenOperator role to: ", tokenOperator);
             ics20Transfer.grantTokenOperatorRole(tokenOperator);
         }
+
 
         return transferProxy;
     }

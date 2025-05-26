@@ -16,6 +16,7 @@
   src = "contracts"
   test = "test"
   fs_permissions = [{ access = "read-write", path = "./" },]
+  libs = ["node_modules", "lib"]
 
 [fmt]
   bracket_spacing = true
