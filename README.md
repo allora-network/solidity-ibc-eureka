@@ -171,9 +171,9 @@ There are five test suites in the `e2e/interchaintestv8` directory:
         just test-e2e-multichain $TEST_NAME
         ```
 
-- `AlloTransfersTestSuite`: This test suite mainly focuses on testing the IBC transfers via the relayer using the ALLO OFT Smart contract. It only includes a single test, transferring ALLO from Ethereum to Cosmos and Back. To run the test, execute the following command:
+- `AlloTransfersTestSuite`: This test suite mainly focuses on testing the IBC transfers via the relayer using the ALLO OFT Smart contract. It only includes a single test, transferring ALLO from Allora Network, to Cosmos Hub, to Ethereum and Back. To run the test, execute the following command:
 ```
-just test-e2e-allo TestICS20TransferAlloTokenfromCosmosToEthereumAndBack
+just test-e2e-allo Test_TransferAlloTokenFromAlloraNetworkToCosmosHubToEthereumAndBack
 ```
 
 ## Linting
