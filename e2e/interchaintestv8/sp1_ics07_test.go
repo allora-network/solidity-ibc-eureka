@@ -163,7 +163,7 @@ func (s *SP1ICS07TendermintTestSuite) SetupSuite(ctx context.Context, proofType 
 	}))
 
 	s.Require().True(s.Run("Deploy SP1 ICS07 contract", func() {
-		stdout, err := eth.ForgeScript(s.key, testvalues.E2EDeployScriptPath)
+		stdout, err := eth.ForgeScript(s.key, testvalues.E2EDeployScriptPath, false)
 		s.Require().NoError(err)
 
 		contractAddresses, err := ethereum.GetEthContractsFromDeployOutput(string(stdout))
