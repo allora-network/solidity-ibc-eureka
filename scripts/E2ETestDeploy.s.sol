@@ -87,9 +87,10 @@ contract E2ETestDeploy is Script, IICS07TendermintMsgs, DeployProxiedICS26Router
         // Set ALLO ERC20 as a custom ERC20 on ICS20Transfer
         string memory denomPath = string.concat(
             ICS20Lib.DEFAULT_PORT_ID,
-            "/",
-            "client-0",
-            "/uallo"
+            "/client-0/",
+            ICS20Lib.DEFAULT_PORT_ID,
+            "/07-tendermint-1/",
+            "uallo"
         );
         ics20Transfer.setCustomERC20(denomPath, address(alloErc20));
 
